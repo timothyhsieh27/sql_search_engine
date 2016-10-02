@@ -7,34 +7,6 @@ def count_pokemon(conn)
   result.getvalue(0, 0).to_i
 end
 
-def select_search(conn)
-  puts "Please enter the number of the function you would like to perform: "
-  puts "(1) Create a pokemon."
-  puts "(2) Read pokemon list."
-  puts "(3) Search pokemon to update / delete."
-
-  selection = get_user_selection
-
-  loop do
-    if selection == 1
-      run_create_pokemon(conn)
-      break
-    elsif selection == 2
-      run_show_pokemon(conn)
-      break
-    elsif selection == 3
-      run_search_pokemon(conn)
-      break
-    else
-      puts "Please enter a valid option (1-3): "
-      selection = get_user_selection
-    end
-  end
-end
-def get_user_selection
-  gets.chomp.to_i
-end
-
 def run_create_pokemon(conn)
   ask_pokemon_info(conn)
 end
@@ -59,13 +31,67 @@ def create_pokemon(conn, name, monster_type, second_type)
   conn.exec(sql)
 end
 
-def run_show_pokemon(conn)
-  generation2 = load_pokemon(conn)
+def run_sort_pokemon(conn)
+  puts "Please enter 1 to sort by ID number."
+  puts "Please enter 2 to sort alphabetically by name."
+  puts "Please enter 3 to sort alphabetically by type."
+  puts "Please enter 4 to sort alphabetically by second type."
+  select_sort(conn)
+end
+def select_sort(conn)
+  sort = get_user_selection
+  loop do
+    if sort == 1
+      sort_by_id(conn)
+      break
+    elsif sort == 2
+      sort_by_name(conn)
+      break
+    elsif sort == 3
+      sort_by_type(conn)
+      break
+    elsif sort == 4
+      sort_by_second_type(conn)
+      break
+    else
+      puts "Please enter a valid number (1-4) to select sorting: "
+      choice = get_user_selection
+    end
+  end
+end
+
+def sort_by_id(conn)
+  generation2 = load_by_id(conn)
   display_pokemon(generation2)
 end
-def load_pokemon(conn)
+def load_by_id(conn)
   conn.exec('SELECT * FROM generation2 ORDER BY id ASC')
 end
+
+def sort_by_name(conn)
+  generation2 = load_by_name(conn)
+  display_pokemon(generation2)
+end
+def load_by_name(conn)
+  conn.exec('SELECT * FROM generation2 ORDER BY name ASC')
+end
+
+def sort_by_type(conn)
+  generation2 = load_by_type(conn)
+  display_pokemon(generation2)
+end
+def load_by_type(conn)
+  conn.exec('SELECT * FROM generation2 ORDER BY type ASC')
+end
+
+def sort_by_second_type(conn)
+  generation2 = load_by_second_type(conn)
+  display_pokemon(generation2)
+end
+def load_by_second_type(conn)
+  conn.exec('SELECT * FROM generation2 ORDER BY second ASC')
+end
+
 def display_pokemon(generation2)
   generation2.each do |pokemon|
     puts "id: #{pokemon['id']} | " \
@@ -85,7 +111,7 @@ def search_pokemon(conn)
   return_pokemon(conn, search)
 end
 def return_pokemon(conn, search)
-  generation2 = load_pokemon(conn)
+  generation2 = load_by_id(conn)
   generation2.each do |pokemon|
     if search ==  "#{pokemon['name']}"
       puts "id: #{pokemon['id']} | " \
@@ -135,6 +161,35 @@ def delete_pokemon(conn, search)
   sql = "DELETE FROM generation2 WHERE name = '#{search}'";
   conn.exec(sql)
   puts "Your pokemon has been deleted."
+end
+
+
+def select_search(conn)
+  puts "Please enter the number of the function you would like to perform: "
+  puts "(1) Create a pokemon."
+  puts "(2) Read pokemon list."
+  puts "(3) Search pokemon to update / delete."
+
+  selection = get_user_selection
+
+  loop do
+    if selection == 1
+      run_create_pokemon(conn)
+      break
+    elsif selection == 2
+      run_sort_pokemon(conn)
+      break
+    elsif selection == 3
+      run_search_pokemon(conn)
+      break
+    else
+      puts "Please enter a valid option (1-3): "
+      selection = get_user_selection
+    end
+  end
+end
+def get_user_selection
+  gets.chomp.to_i
 end
 
 def main
